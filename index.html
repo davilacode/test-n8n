@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo envío notificaciones N8N</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1 class="title">Actualización de estado de pedido</h1>
+    <form id="orderForm" class="form">
+      <section class="form-section">
+        <label for="orderId" class="label">ID de pedido *</label>
+        <input type="text" id="orderId" name="orderId" class="input" required>
+      </section>
+      <section class="form-section">
+        <label for="customerId" class="label">ID de cliente</label>
+        <input type="text" id="customerId" name="customerId" class="input">
+      </section>
+      <section class="form-section">
+        <label for="customerEmail" class="label">Correo electrónico *</label>
+        <input type="email" id="customerEmail" name="customerEmail" class="input" required placeholder="ejemplo@dominio.com">
+      </section>
+      <section class="form-section">
+        <label for="customerPhone" class="label">Teléfono del cliente</label>
+        <input type="tel" id="customerPhone" name="customerPhone" class="input" placeholder="+341234567123" pattern="^\+?[1-9]\d{1,14}$" required>
+      </section>
+      <section class="form-section">
+        <label for="notificationPreference" class="label">Preferencia de notificación *</label>
+      
+        <div class="radio-group" id="notificationPreferenceGroup">
+          <label class="radio-label">
+            <input type="radio" name="notificationPreference" value="email" required checked>
+            Correo electrónico
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="notificationPreference" value="sms" required>
+            SMS
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="notificationPreference" value="both" required>
+            Ambos
+          </label>
+        </div>
+      </section>
+      <section class="form-section">
+        <label for="orderStatus" class="label">Estado del pedido *</label>
+        <select id="orderStatus" name="orderStatus" class="select" required>
+          <option value="pending">Pendiente</option>
+          <option value="processing">Procesando</option>
+          <option value="sent">Enviado</option>
+          <option value="delivered">Entregado</option>
+          <option value="canceled">Cancelado</option>
+        </select>
+      </section>
+      <section class="form-section" id="trackingSection" style="display:none;">
+        <label for="trackingNumber" class="label">Número de seguimiento</label>
+        <input type="text" id="trackingNumber" name="trackingNumber" class="input">
+      </section>
+      <section class="form-section" id="deliverySection" style="display:none;">
+        <label for="deliveryEstimate" class="label">Fecha estimada de entrega</label>
+        <input type="date" id="deliveryEstimate" name="deliveryEstimate" class="input">
+      </section>
+      <button type="submit" class="button">Enviar notificación</button>
+    </form>
+    <div id="feedback" class="feedback" role="alert"></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
