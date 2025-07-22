@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       orderForm.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = true);
 
-      const response = await fetch('http://localhost:3000/notify', {
+      const response = await fetch('/api/notify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
