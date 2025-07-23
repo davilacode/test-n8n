@@ -1,5 +1,3 @@
-// script.js - Landing page logic
-
 document.addEventListener('DOMContentLoaded', () => {
   const orderForm = document.getElementById('orderForm');
   const orderStatus = document.getElementById('orderStatus');
@@ -8,12 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedback = document.getElementById('feedback');
   const today = new Date().toISOString().split('T')[0];
 
+  // Aplicar fecha de hoy a los campos de fecha
   const deliveryEstimateInput = document.getElementById('deliveryEstimate');
   if (deliveryEstimateInput) {
     deliveryEstimateInput.min = today;
     deliveryEstimateInput.value = today;
   }
 
+  // Muestra los campos de seguimiento y entrega si el estado es "sent"
   orderStatus.addEventListener('change', (e) => {
     if (e.target.value === 'sent') {
       trackingSection.style.display = 'flex';
@@ -29,10 +29,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Función para mostrar y ocultar el feedback
+  function showFeedback(message, type = 'success') {
+    feedback.textContent = message;
+    feedback.className = 'feedback ' + type;
+    feedback.style.display = 'block';
+    setTimeout(() => {
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+      feedback.style.display = 'none';
+    }, 5000);
+  }
+
+  // Function para desactivar los campos del formulario
+  function disableFormFields(disable = true) {
+    orderForm.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = disable);
+  }
+
+  // Envío de formulario
   orderForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     feedback.textContent = '';
     feedback.className = 'feedback';
+    feedback.style.display = 'none';
 
     const data = {
       orderId: orderForm.orderId.value.trim(),
@@ -51,9 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+      // Deshabilitar los campos del formulario para evitar múltiples envíos
+      disableFormFields(true);
 
-      orderForm.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = true);
-
+      // Envío de datos al servidor
       const response = await fetch('/api/notify', {
         method: 'POST',
         headers: {
@@ -63,24 +83,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const result = await response.json();
 
+      // Manejo de la respuesta
       if (response.ok && result.status === 'success') {
-        feedback.textContent = '¡Notificación enviada correctamente!';
-        feedback.classList.add('success');
+        showFeedback('¡Notificación enviada correctamente!', 'success');
         orderForm.reset();
         trackingSection.style.display = 'none';
         deliverySection.style.display = 'none';
       } else {
-        feedback.textContent = result.message || 'Error al enviar la notificación.';
-        feedback.classList.add('error');
+        showFeedback(result.message || 'Error al enviar la notificación.', 'error');
       }
 
-      orderForm.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = false);
-      orderForm.querySelector('button[type="submit"], input').disabled = false;
+      // Habilitar los campos del formulario nuevamente
+      disableFormFields(false);
     } catch (err) {
-      feedback.textContent = 'Error de conexión. Por favor, inténtalo de nuevo.';
-      feedback.classList.add('error');
-
-      orderForm.querySelector('button[type="submit"], input').disabled = false;
+      // Manejo de errores de conexión
+      showFeedback('Error de conexión. Por favor, inténtalo de nuevo.', 'error');
+      disableFormFields(false);
     }
   });
 });

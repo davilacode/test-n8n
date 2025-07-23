@@ -76,24 +76,28 @@ body {
 }
 
 .button:disabled {
-  background: #1e40af;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .feedback {
-  margin-top: 18px;
+  margin: 18px auto 0;
   text-align: center;
   font-size: 1rem;
+  border-radius: 4px;
   min-height: 24px;
+  padding: 4px 8px;
+  max-width: 300px;
 }
 
 .feedback.success {
-  color: #16a34a;
+  background: #16a34a;
+  color: #fff;
 }
 
 .feedback.error {
-  color: #dc2626;
+  background: #dc2626;
+  color: #fff;
 }
 .radio-group {
   display: flex;

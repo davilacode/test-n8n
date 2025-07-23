@@ -1,0 +1,1054 @@
+{
+  "name": "Prueba técnica",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d80fa233-64f1-4f26-a1bd-dd1a708be38e",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        16
+      ],
+      "id": "a1f2cc83-1453-4216-a236-247b516827cc",
+      "name": "Webhook",
+      "webhookId": "d80fa233-64f1-4f26-a1bd-dd1a708be38e",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aNmNPsBz7Zj4F50W",
+          "name": "Header Auth Webook "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.notificationPreference }}",
+                    "rightValue": "email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e017b9c7-a63a-44e1-a987-dcc53bfc6eef"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Enviar correo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "556e528d-951d-4932-b64b-b6a07749fc7d",
+                    "leftValue": "={{ $json.notificationPreference }}",
+                    "rightValue": "sms",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Enviar SMS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7899f5ab-6943-4d90-8cd9-b3a8b10984af",
+                    "leftValue": "={{ $json.notificationPreference }}",
+                    "rightValue": "both",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Enviar ambos"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "ae2e7d66-3d43-4d05-ad5a-97f1b7f42d58",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "bbca81b0-94b3-4e78-9735-72fc5ad815a7",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "from": "+13203356547",
+        "to": "={{ $json.customerPhone }}",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        672,
+        16
+      ],
+      "id": "844590e6-bae9-4b50-b438-f0e711d8ef1b",
+      "name": "SMS",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "twilioApi": {
+          "id": "m3hhCLbFgS4Uoxop",
+          "name": "Twilio account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5eaad957-bfe7-4330-8fa8-7a269aaf8922",
+              "name": "nodeName",
+              "value": "gmail",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        -176
+      ],
+      "id": "75b9bdad-c43f-4007-9f6c-893e21699f25",
+      "name": "Set Gmail"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5eaad957-bfe7-4330-8fa8-7a269aaf8922",
+              "name": "nodeName",
+              "value": "twilio",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        16
+      ],
+      "id": "14cb2870-92cc-476b-9568-4ff9d8109d6b",
+      "name": "Set SMS"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de campos para notificación de pedido\n// Recibe: orderId, customerEmail, customerPhone, notificationPreference, orderStatus, trackingNumber, deliveryEstimate\n// Retorna:  si todo es válido, lanza error si no\n\nconst items = $input.first().json.body\n\nconst {\n  orderId,\n  customerEmail,\n  customerPhone,\n  notificationPreference,\n  orderStatus,\n  trackingNumber,\n  deliveryEstimate\n} = items;\n\n// validaciones requeridas\nif (!orderId) {\n  throw new Error('orderId es requerido');\n}\n\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nif (!customerEmail || !emailRegex.test(customerEmail)) {\n  throw new Error('customerEmail es requerido y debe tener formato válido');\n}\n\nconst phoneRegex = /^\\+?[1-9]\\d{1,14}$/;\nif (!customerPhone || !phoneRegex.test(customerPhone)) {\n  throw new Error('customerPhone es requerido y debe tener formato internacional válido');\n}\n\nconst validPreferences = ['email', 'sms', 'both'];\nif (!notificationPreference || !validPreferences.includes(notificationPreference)) {\n  throw new Error('notificationPreference es requerido y debe ser \"email\", \"sms\" o \"both\"');\n}\n\nconst validStatuses = ['pending', 'processing', 'sent', 'delivered', 'canceled'];\nif (!orderStatus || !validStatuses.includes(orderStatus)) {\n  throw new Error(`orderStatus es requerido y debe ser uno de ${validStatuses.join(', ')}`);\n}\n\n// Validaciones opcionales\nif (orderStatus === 'sent') {\n  if (!trackingNumber) {\n    throw new Error('trackingNumber es requerido cuando el estado es \"sent\"');\n  }\n  if (!deliveryEstimate) {\n    throw new Error('deliveryEstimate es requerido cuando el estado es \"sent\"');\n  }\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        16
+      ],
+      "id": "873b38a0-92ed-43ee-a5cc-1795a6a2e537",
+      "name": "Validation",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const generateMessage = (data) => {\n\n  const { orderId, orderStatus, trackingNumber, deliveryEstimate } = data\n\n  let message = '';\n  let subject = `Actualización de tu pedido ${orderId}`;\n  \n  switch (orderStatus) {\n    case 'pending':\n      message = `Tu pedido ${orderId} está pendiente de confirmación.`;\n      break;\n    case 'processing':\n      message = `Tu pedido ${orderId} está siendo procesado.`;\n      break;\n    case 'sent':\n      message = `¡Tu pedido ${orderId} ha sido enviado!`;\n      if (trackingNumber) {\n        message += `\\n\\nNúmero de seguimiento: ${trackingNumber}`;\n      }\n      if (deliveryEstimate) {\n        message += `\\n\\nEntrega estimada: ${deliveryEstimate}`;\n      }\n      break;\n    case 'delivered':\n      message = `Tu pedido ${orderId} ha sido entregado. ¡Gracias por tu compra!`;\n      break;\n    case 'canceled':\n      message = `Tu pedido ${orderId} ha sido cancelado. Si tienes dudas, contacta soporte.`;\n      break;\n    default:\n      message = `Actualización de tu pedido ${orderId}: estado \"${orderStatus}\".`;\n  }\n      \n  return { subject, message }\n\n}\n\nconst template = generateMessage($input.first().json);\n\nconsole.log(template);\n\nreturn [{ \n  json: {\n    ...$input.first().json,\n    ...template\n  } \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "cc1b32cf-fd7f-4375-ba92-bcfef747bc01",
+      "name": "Generate message"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { customerEmail, customerId, message, subject } = $input.first().json;\n\nconst emailSubject = subject;\nconst emailBody = `\n  <div style=\"font-family: Arial, sans-serif;\">\n    <h2>Hola ${customerId ? ' ' + customerId : ''},</h2>\n    <hr>\n    <p>${message.replace(/\\n/g, '<br>')}</p>\n  </div>\n`;\n\nreturn [{ json: { emailSubject, emailBody, customerEmail } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -176
+      ],
+      "id": "6f8794d7-b6f9-4d61-af1c-3e3aa11847b5",
+      "name": "Template email"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "018ada23-1457-47c7-b63e-ff1208d95375",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            },
+            {
+              "id": "165ebcd5-11f3-4df7-ab5e-995f5ec669f0",
+              "name": "nodeName",
+              "value": "validation",
+              "type": "string"
+            },
+            {
+              "id": "44d62009-82ce-4504-8cf5-df02534d3022",
+              "name": "orderId",
+              "value": "={{ $('Webhook').item.json.body.orderId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        208
+      ],
+      "id": "8d64d704-68ae-49b3-9c22-ca68948c95c3",
+      "name": "Set validation"
+    },
+    {
+      "parameters": {
+        "enableResponseOutput": true,
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"{{ $if($json.error, \"error\", \"success\") }}\",\n  \"message\": \"{{ $if($json.error, \"Ocurrió un error\", \"Envío exitoso\") }}\"\n}",
+        "options": {
+          "responseCode": "={{ $if($json.error, 400, 200) }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "7a35f894-93b1-4849-80b9-47c41f8589f6",
+      "name": "Respond",
+      "retryOnFail": false,
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.customerEmail }}",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -176
+      ],
+      "id": "e4c98cbf-4915-437e-8446-3e6495ec7f54",
+      "name": "Send a message",
+      "webhookId": "96547175-cdc0-40f8-8b6f-ac6100b5e5ce",
+      "alwaysOutputData": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HNiYb9UFuNBTf5yr",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all()\n\nconst results = items.map(item => item.json);\n\nconst errors = results.filter(r => r.error);\n\nif (errors.length > 0) {\n  const errorMessages = errors.map(e => `${e.nodeName}|${e.error}`).join('; ');\n  throw new Error(errorMessages);\n}\n\nreturn [\n  {\n    json: {\n      success: true,\n      message: 'Envío exitoso.',\n      details: results\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        16
+      ],
+      "id": "7e6a159e-76a1-41b8-bf85-8f91ecad6bd9",
+      "name": "Review results",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        512
+      ],
+      "id": "222c8117-697c-4f81-bed2-d9b537e85c30",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU",
+          "mode": "list",
+          "cachedResultName": "Error Log N8N",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data": "={{ $('Webhook').item.json.body }}",
+            "type": "={{ $json.nodeName }}",
+            "orderId": "={{ $('Webhook').item.json.body.orderId }}",
+            "log": "={{ $json.error }}",
+            "date": "={{ $now }}",
+            "retry": "={{ $if($('Webhook').item.json.body.retry, true, false) }}",
+            "success": "={{ false }}"
+          },
+          "matchingColumns": [
+            "orderId"
+          ],
+          "schema": [
+            {
+              "id": "orderId",
+              "displayName": "orderId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "log",
+              "displayName": "log",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry",
+              "displayName": "retry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "success",
+              "displayName": "success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2016,
+        16
+      ],
+      "id": "12c613ca-1549-47b3-83bb-87ea4f5ff59e",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8DeU2ulbXwabw9pJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://davilacode.app.n8n.cloud/webhook/d80fa233-64f1-4f26-a1bd-dd1a708be38e",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "orderId",
+              "value": "={{ $json.data.orderId }}"
+            },
+            {
+              "name": "customerId",
+              "value": "={{ $json.data.customerId }}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{ $json.data.customerEmail }}"
+            },
+            {
+              "name": "customerPhone",
+              "value": "={{ $json.data.customerPhone }}"
+            },
+            {
+              "name": "notificationPreference",
+              "value": "={{ $json.data.notificationPreference }}"
+            },
+            {
+              "name": "orderStatus",
+              "value": "={{ $json.data.orderStatus }}"
+            },
+            {
+              "name": "trackingNumber",
+              "value": "={{ $json.data.trackingNumber }}"
+            },
+            {
+              "name": "deliveryEstimate",
+              "value": "={{ $json.data.deliveryEstimate }}"
+            },
+            {
+              "name": "retry",
+              "value": "={{ $json.retry }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        512
+      ],
+      "id": "0b7e8ae1-eb60-4040-9188-6a62c8f2e2f8",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aNmNPsBz7Zj4F50W",
+          "name": "Header Auth Webook "
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6aba90f-5dc7-4e83-a470-e80b35a51584",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "object"
+            },
+            {
+              "id": "d42bec3e-e552-48c2-880b-4d97076249a7",
+              "name": "retry",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        512
+      ],
+      "id": "9319f310-f599-4827-b723-957172229bb0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU",
+          "mode": "list",
+          "cachedResultName": "Error Log N8N",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "orderId": "={{ $('Edit Fields').item.json.data.orderId }}",
+            "data": "={{ $('Edit Fields').item.json.data }}",
+            "retry": "={{ $('Edit Fields').item.json.retry }}",
+            "success": "={{ $if($json.status == 'success', true, false) }}",
+            "date": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "orderId"
+          ],
+          "schema": [
+            {
+              "id": "orderId",
+              "displayName": "orderId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "log",
+              "displayName": "log",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry",
+              "displayName": "retry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "success",
+              "displayName": "success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1328,
+        512
+      ],
+      "id": "61821211-f069-49a2-8e13-448f8919475e",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8DeU2ulbXwabw9pJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c571918e-2b80-4be1-af75-371f19defb34",
+              "leftValue": "={{ $json.retry }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        512
+      ],
+      "id": "3d336cdd-9451-4c22-870a-1bfd519f2c77",
+      "name": "Validate Retry"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU",
+          "mode": "list",
+          "cachedResultName": "Error Log N8N",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_UTiZ_X-vt3_VPf8KPf3XA2NTBnGP_Iuo2PrFEF4eqU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "retry",
+              "lookupValue": "false"
+            },
+            {
+              "lookupColumn": "type",
+              "lookupValue": "gmail"
+            },
+            {
+              "lookupColumn": "type",
+              "lookupValue": "twilio"
+            }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        432,
+        512
+      ],
+      "id": "87a0ad79-ff3e-4145-b2e5-970ac89582b2",
+      "name": "Get Logs",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8DeU2ulbXwabw9pJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorMessages = $input.first().json.error.split(';');\nreturn errorMessages.map(msg => {\n  const [node, error] = msg.split('|');\n  return {\n    json: {\n      nodeName: node.trim(),\n      error: error.trim()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        16
+      ],
+      "id": "45037427-8ed0-4fd0-adaa-6a29053faa30",
+      "name": "Evaluate Error",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Template email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SMS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Template email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Review results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS": {
+      "main": [
+        [
+          {
+            "node": "Set SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Set Gmail": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SMS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Validation": {
+      "main": [
+        [
+          {
+            "node": "Generate message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate message": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set validation": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Respond": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "Evaluate Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Set Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Review results": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Retry": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Logs": {
+      "main": [
+        [
+          {
+            "node": "Validate Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Error": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "DzGdUg5adUmtu187"
+  },
+  "versionId": "15407b30-45eb-4c58-be1d-3d7b271edeff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1282ffc86f3e120ee2b1e1e2f8865e75ad877dde2fe6f169f267446ac5471992"
+  },
+  "id": "iIEaHoJHoP8h4Vgl",
+  "tags": []
+}
