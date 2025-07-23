@@ -42,7 +42,7 @@ Este proyecto implementa un sistema automatizado de notificaciones para informar
   N8N_API_KEY=<Key usado para Header Auth>
   ```
 - Ejecuta `npx vercel dev` en la raíz del proyecto para iniciar el servidor local y exponer el endpoint `/api/notify`.
-- Abre `index.html` en tu navegador.
+- Abre `localhost:3000` en tu navegador.
 - Completa el formulario con los datos del pedido.
 - El formulario envía los datos vía POST al webhook de n8n a través del endpoint local.
 - Recibirás feedback de éxito o error en pantalla.
