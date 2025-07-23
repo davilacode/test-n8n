@@ -24,11 +24,15 @@ Este proyecto implementa un sistema automatizado de notificaciones para informar
 ---
 
 ## 2. Instrucciones de Uso
+
 ### a) Iniciar n8n
 - Ejecuta n8n localmente o en la nube.
 - Importa el archivo `n8n-flow.json` desde el editor de n8n.
 - Configurar en el nodo Webhook autenticación Header Auth, agregar credenciales de nombre `x-api-key` y el valor que desees.
 - Configura credenciales para Gmail, Twilio y Google Sheets si deseas pruebas reales.
+
+> **Nota importante sobre SMS:**
+> Por el uso de la versión de prueba de Twilio, el envío de mensajes SMS solo funciona con dos números telefónicos previamente verificados en el sistema. Si se intenta enviar un SMS a un número no autorizado, el flujo registrará el error y no realizará el envío. 
 
 ### b) Usar la Landing Page
 - Ejecuta `npm install` en la raíz del proyecto para instalar las dependencias necesarias.
