@@ -68,6 +68,21 @@ Este proyecto implementa un sistema automatizado de notificaciones para informar
 - Implementado en nodo "Execute Code" (JavaScript).
 - Construye el mensaje y asunto para email/SMS según el estado del pedido y datos adicionales.
 
+### c) Generación de Template Correo
+- Implementado en nodo "Execute Code" (JavaScript).
+- Recibe los datos del nodo de Generar mensajes
+- Construye y retorna un HTMl sencillo para usar en el nodo de Envío de correo 
+
+### d) Revisión de resultados
+- Implementado en nodo "Execute Code" (JavaScript).
+- Revisa los resultados de la ejecución de los nodos Gmail y Twilio
+- Retorna los errores en caso de ocurrir, y si todo está perfecto, devuelve exitosamente al nodo Respond to Webhook 
+
+### e) Revisión de errores
+- Implementado en nodo "Execute Code" (JavaScript).
+- Revise los errores de la revisión de resultados
+- Retorna un JSON con los errores del flujo para guardarlos en Google Sheets.
+
 ---
 
 ## 4. Manejo de Errores
